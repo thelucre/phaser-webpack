@@ -1,0 +1,44 @@
+{
+	"name": "phaser-webpack",
+	"version": "0.0.1",
+	"description": "Phaser + Webpack boilerplate setup",
+	"main": "dist/build.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/thelucre/phaser-webpack.git"
+	},
+	"keywords": [
+		"phaser",
+		"webpack",
+		"coffescript",
+		"html5",
+		"gamedev"
+	],
+	"author": "@theLucre",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/thelucre/phaser-webpack/issues"
+	},
+	"homepage": "https://github.com/thelucre/phaser-webpack",
+	"devDependencies": {
+		"autoprefixer-stylus": "*",
+		"coffee-loader": "^0.7.2",
+		"css-loader": "*",
+		"expose-loader": "*",
+		"extract-text-webpack-plugin": "*",
+		"haml-loader": "^0.1.0",
+		"html-loader": "^0.3.0",
+		"jquery": "^2.1.4",
+		"lodash": "^3.10.1",
+		"raw-loader": "0.5.1",
+		"run-sequence": "^1.0.2",
+		"sass-loader": "2.0.*",
+		"style-loader": "*",
+		"stylus-loader": "*",
+		"url-loader": "*",
+		"webpack": "^1.12.6"
+	}
+}
