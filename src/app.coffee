@@ -1,15 +1,16 @@
 # import global styles (to force a compile)
 require 'style.styl'
+require 'jquery'
 Map = require './Map.coffee'
 
 window.options =
-	scale: 4
+	scale: 1
 	tilesize: 8
 
 class App
 
 	constructor: () ->
-		@game = new Phaser.Game 600, 600, Phaser.AUTO, 'game', {
+		@game = new Phaser.Game 160, 160, Phaser.AUTO, 'game', {
 			preload: @preload
 			create: @create
 			update: @update

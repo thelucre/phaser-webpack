@@ -55,10 +55,8 @@ module.exports =
 		]
 
 		alias:
-		# 	'jquery': node_dir + '/jquery/dist/jquery.js'
+			'jquery': node_dir + '/jquery/dist/jquery.js'
 			'lodash': node_dir + '/lodash/index.js'
-		# 	# 'vue': node_dir + '/vue/dist/vue.js'
-		# 	# 'vue-resource': node_dir + '/vue-resource/dist/vue-resource.js'
 
 	plugins: [
 		new webpack.OldWatchingPlugin,
