@@ -10,6 +10,7 @@ window.options =
 class App
 
 	constructor: () ->
+		@filter = []
 		@game = new Phaser.Game 160, 160, Phaser.AUTO, 'game', {
 			preload: @preload
 			create: @create
@@ -27,9 +28,17 @@ class App
 
 		@game.load.spritesheet('sprites', '/assets/tiles.png', 8, 8, 16);
 
+		@game.load.script('filter-filmgrain', '/assets/filters/filmgrain.js');
+
 		return
 
 	create: () =>
+
+		@filter[0] = @game.add.filter('FilmGrain');
+		@filter[0].size = 0.05;
+		@filter[0].amount = 0.05;
+		@filter[0].alpha = 0.05;
+
 		# globalize input
 		window.cursors = @game.input.keyboard.createCursorKeys()
 
@@ -39,10 +48,13 @@ class App
 
 		@map = new Map @game
 
+		@game.stage.filters = [@filter[0]]
+
 		return
 
 	update: () =>
 		@map.update()
+		@filter[0].update()
 		return
 
 	render: () =>
