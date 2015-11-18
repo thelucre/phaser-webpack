@@ -84,10 +84,10 @@
 	  }
 	
 	  App.prototype.preload = function() {
-	    this.game.load.image('tiles', '/assets/tiles.png?' + new Date());
-	    this.game.load.tilemap('map_01', '/assets/map_0' + this.level + '.json?' + new Date(), null, Phaser.Tilemap.TILED_JSON);
-	    this.game.load.spritesheet('sprites', '/assets/tiles.png?' + new Date(), 8, 8, 16);
-	    this.game.load.script('filter-filmgrain', '/assets/filters/filmgrain.js');
+	    this.game.load.image('tiles', './assets/tiles.png?' + new Date());
+	    this.game.load.tilemap('map_01', './assets/map_0' + this.level + '.json?' + new Date(), null, Phaser.Tilemap.TILED_JSON);
+	    this.game.load.spritesheet('sprites', './assets/tiles.png?' + new Date(), 8, 8, 16);
+	    this.game.load.script('filter-filmgrain', './assets/filters/filmgrain.js');
 	  };
 	
 	  App.prototype.create = function() {
