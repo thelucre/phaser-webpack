@@ -1,22 +1,40 @@
+###
+Generic game object class
+All interactive objects in the demo extend this class
+###
+
 class Entity
 
-	constructor: (@game, @layer, data) ->
+	constructor: (@game, @layer, @data) ->
+		# Container for linked objects by customer `id` property
 		@targets = []
-		@view = new Phaser.Sprite @game, 0, 0, 'sprites', data.gid - 1
+
+		# Creates the Phaser Sprite based on the tile ID from Tiled
+		@view = new Phaser.Sprite @game, 0, 0, 'sprites', @data.gid - 1
 		@layer.addChild @view
+
+		# To keep our pixelated crisposity during scaling
 		@view.smoothed = false;
 
-		@position = new Phaser.Point data.x / options.tilesize, (data.y / options.tilesize) - 1
+		# Converts screen position to abstract tile coordinates for game logic
+		@position = new Phaser.Point @data.x / options.tilesize, (@data.y / options.tilesize) - 1
+
 		@updateViewPosition()
 
 		return @
 
+	###
+	Moves the sprite to a tile position relative to the object's current position
+	###
 	moveRelative: (x, y) =>
 		@position.x += x
 		@position.y += y
 		@updateViewPosition()
 		return
 
+	###
+	Using the tile coordinate, render the object at the appropriate screen position
+	###
 	updateViewPosition: () =>
 		@view.x = @position.x * options.tilesize
 		@view.y = @position.y * options.tilesize
@@ -46,7 +64,5 @@ class Entity
 		@deactivated = false
 		@layer.addChild @view
 		return
-
-
 
 module.exports = Entity

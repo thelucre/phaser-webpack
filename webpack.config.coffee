@@ -8,7 +8,7 @@ path = require 'path'
 module.exports =
 
 	entry:
-		app: [__dirname + '/src/app.coffee']
+		app: [__dirname + '/src/App.coffee']
 
 
 	output:

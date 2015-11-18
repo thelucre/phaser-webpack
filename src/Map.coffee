@@ -3,15 +3,17 @@ _ = require 'lodash'
 class Map
 	constructor: (@game) ->
 
+		# Coffeescript classes to create game object instances
 		@objectClasses =
 			player: require './Player.coffee'
 			laser: require './Laser.coffee'
 			finish: require './Finish.coffee'
 			switch: require './Switch.coffee'
 
+		# container for objects created from Tiled map data
 		@objects = []
 
-		# create a tilemap
+		# create a tilemap from our demo json map
 		@map = @game.add.tilemap('map_01')
 
 		@layers =
@@ -21,13 +23,15 @@ class Map
 		# and load hte tileset into the map object
 		@map.addTilesetImage 'tiles'
 
-		# render the
+		# render the static environment tiles
 		@layers.environment = @map.createLayer 'environment'
 		@layers.environment.setScale options.scale
 
+		# setup a rednering layer for game objects
 		@layers.objects = @map.createBlankLayer 'objects'
 		@layers.objects.setScale options.scale
 
+		# get the Tiled map data for custom object loading
 		@mapData = Phaser.TilemapParser.parse @game, 'map_01'
 
 		# Build all map objects and views
@@ -37,15 +41,16 @@ class Map
 		# connect any objects that have targets (IE: Siwtches target other game objects)
 		_.each @objects, (object) =>
 			return unless object.data.properties.targets
+			
 			targets = object.data.properties.targets.split ','
 			object.targets = @findById targets
-			console.log object
 			return
 
 		return
 
 	###
-
+	Looks for any game objects that match an array of ID strings.
+	The ID is a custom property set on Tiled Objects
 	###
 	findById: (targets) =>
 		targetObjects = []
@@ -59,17 +64,23 @@ class Map
 		return targetObjects
 
 	###
-
+	Create Coffee objects from Tiled Object layer data
 	###
 	makeObject: (object) =>
+		# Player gets a special setup
 		if object.name == 'player'
 			@makePlayer object
+
+		# Otherwise, build a custom instance (which will generate the Phaser sprite)
 		else
 			@objects.push new @objectClasses[object.name]( @game, @layers.objects, object )
+
 		return
 
 	###
-
+	Create a Player instance and bind input.
+	We bind at the map level because movement is directly related to the
+	map's environment.
 	###
 	makePlayer: (object) =>
 		@player = new @objectClasses[object.name] @game, @layers.objects, object
@@ -93,7 +104,9 @@ class Map
 		return
 
 	###
-
+	Checks if hte player can move to a tile includes:
+	A. If an object is at the upcoming position, trigger some interaction form the object
+	B. If the map enviornment is a collision tile, don't let the player move there
 	###
 	isValidMove: (x,y) =>
 		#  calculate the tile the player is moving to
@@ -110,11 +123,5 @@ class Map
 			return
 
 		return !clean || @mapData.layers[0].data[movePos.y][movePos.x].index != 6
-
-	findObjectsByType: (type, map, layer) =>
-		return
-
-	update: () =>
-		return
 
 module.exports = Map

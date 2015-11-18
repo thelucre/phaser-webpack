@@ -1,23 +1,16 @@
 ###
-	Player for the game
+	A simple dead zone
 ###
 Entity = require './Entity.coffee'
 
 class Laser extends Entity
 
-	constructor: (@game, @map, @data) ->
-		super @game, @map, @data
-		return @
-
-	update: () =>
-
-		return
-
 	onPlayerTouch: () =>
 		return if @deactivated
 		console.log 'you died by laser'
+
+		# restart the game state
 		@game.state.start('game')
 		return
-
 
 module.exports = Laser
