@@ -9,6 +9,7 @@ class Map
 			laser: require './Laser.coffee'
 			finish: require './Finish.coffee'
 			switch: require './Switch.coffee'
+			warp: require './Warp.coffee'
 
 		# container for objects created from Tiled map data
 		@objects = []
@@ -40,9 +41,11 @@ class Map
 
 		# connect any objects that have targets (IE: Siwtches target other game objects)
 		_.each @objects, (object) =>
+
 			return unless object.data.properties.targets
-			
+
 			targets = object.data.properties.targets.split ','
+
 			object.targets = @findById targets
 			return
 
@@ -57,7 +60,7 @@ class Map
 
 		_.each @objects, (object) =>
 			return unless object.data.properties.id
-			if targets.indexOf object.data.properties.id >= 0
+			if (targets.indexOf(object.data.properties.id) >= 0)
 				targetObjects.push object
 			return
 
@@ -118,10 +121,10 @@ class Map
 		# check if any objects exist at that tile
 		_.each @objects, (object) =>
 			if object.position.x == movePos.x && object.position.y == movePos.y
-				object.onPlayerTouch()
-				clean = false
+				# the interaction object decides if the player should continue its move or not
+				clean = object.onPlayerTouch @player
 			return
 
-		return !clean || @mapData.layers[0].data[movePos.y][movePos.x].index != 6
+		return clean && @mapData.layers[0].data[movePos.y][movePos.x].index != 6
 
 module.exports = Map
