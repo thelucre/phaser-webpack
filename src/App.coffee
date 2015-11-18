@@ -14,7 +14,7 @@ window.options =
 class App
 
 	constructor: () ->
-		@level = 2;
+		@level = 1;
 
 		@filter = []
 
@@ -32,16 +32,16 @@ class App
 
 	preload: () =>
 		# load the map's tilesheet
-		@game.load.image('tiles', '/assets/tiles.png?' + new Date());
+		@game.load.image('tiles', './assets/tiles.png?' + new Date());
 
 		# load the Tiled map (with timestamp for cache busting)
-		@game.load.tilemap 'map_01', '/assets/map_0' + @level + '.json?' + new Date(), null, Phaser.Tilemap.TILED_JSON
+		@game.load.tilemap 'map_01', './assets/map_0' + @level + '.json?' + new Date(), null, Phaser.Tilemap.TILED_JSON
 
 		# load the tile sheet again (not a new request) to use individual tiles as Sprites
-		@game.load.spritesheet('sprites', '/assets/tiles.png?' + new Date(), 8, 8, 16);
+		@game.load.spritesheet('sprites', './assets/tiles.png?' + new Date(), 8, 8, 16);
 
 		# load the demo Phaser filter, a noise effect
-		@game.load.script('filter-filmgrain', '/assets/filters/filmgrain.js');
+		@game.load.script('filter-filmgrain', './assets/filters/filmgrain.js');
 
 		return
 
