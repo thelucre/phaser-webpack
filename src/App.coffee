@@ -14,7 +14,10 @@ window.options =
 class App
 
 	constructor: () ->
+		@level = 2;
+
 		@filter = []
+
 		@game = new Phaser.Game 160, 160, Phaser.AUTO, 'game', {
 			preload: @preload
 			create: @create
@@ -32,7 +35,7 @@ class App
 		@game.load.image('tiles', '/assets/tiles.png?' + new Date());
 
 		# load the Tiled map (with timestamp for cache busting)
-		@game.load.tilemap 'map_01', '/assets/map_01.json?' + new Date(), null, Phaser.Tilemap.TILED_JSON
+		@game.load.tilemap 'map_01', '/assets/map_0' + @level + '.json?' + new Date(), null, Phaser.Tilemap.TILED_JSON
 
 		# load the tile sheet again (not a new request) to use individual tiles as Sprites
 		@game.load.spritesheet('sprites', '/assets/tiles.png?' + new Date(), 8, 8, 16);
@@ -68,5 +71,10 @@ class App
 	update: () =>
 		@filter[0].update()
 		return
+
+	nextLevel: () =>
+		@level++
+		# restart the game state
+		@game.state.start('game')
 
 window.app = new App
