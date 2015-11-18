@@ -33,6 +33,15 @@ class Entity
 		return
 
 	###
+	Moves the sprite to a specific location
+	###
+	move: (x, y) =>
+		@position.x = x
+		@position.y = y
+		@updateViewPosition()
+		return
+
+	###
 	Using the tile coordinate, render the object at the appropriate screen position
 	###
 	updateViewPosition: () =>

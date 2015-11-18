@@ -11,6 +11,6 @@ class Switch extends Entity
 		console.log 'you hit the switch'
 		_.each @targets, (target) =>
 			target.deactivate()
-		return
+		return true
 
 module.exports = Switch

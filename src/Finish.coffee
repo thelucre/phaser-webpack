@@ -7,9 +7,7 @@ class Finish extends Entity
 
 	onPlayerTouch: () =>
 		console.log 'you beat this level'
-
-		# restart the game state
-		@game.state.start('game')
-		return
+		app.nextLevel()
+		return true
 
 module.exports = Finish
