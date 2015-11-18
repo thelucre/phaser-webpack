@@ -71,7 +71,7 @@
 	    this.update = bind(this.update, this);
 	    this.create = bind(this.create, this);
 	    this.preload = bind(this.preload, this);
-	    this.level = 2;
+	    this.level = 1;
 	    this.filter = [];
 	    this.game = new Phaser.Game(160, 160, Phaser.AUTO, 'game', {
 	      preload: this.preload,
