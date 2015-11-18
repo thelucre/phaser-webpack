@@ -55,7 +55,7 @@
                  "name":"laser",
                  "properties":
                     {
-
+                     "id":"laser1"
                     },
                  "rotation":0,
                  "type":"",
@@ -63,6 +63,22 @@
                  "width":0,
                  "x":88,
                  "y":72
+                }, 
+                {
+                 "gid":4,
+                 "height":0,
+                 "id":9,
+                 "name":"switch",
+                 "properties":
+                    {
+                     "targets":"laser1"
+                    },
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":80,
+                 "y":56
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -71,7 +87,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":8,
+ "nextobjectid":10,
  "orientation":"orthogonal",
  "properties":
     {

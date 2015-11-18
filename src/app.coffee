@@ -17,16 +17,18 @@ class App
 			update: @update
 			render: @render
 		}, true # transparent canvas
+
+		@game.state.add('game', @)
 		return @
 
 	preload: () =>
 		# load an asset file
 		@game.load.image('tiles', '/assets/tiles.png');
 
-		# load hte Tiled map
-		@game.load.tilemap 'map_01', '/assets/map_01.json', null, Phaser.Tilemap.TILED_JSON
+		# load the Tiled map (with timestamp for cache busting)
+		@game.load.tilemap 'map_01', '/assets/map_01.json?' + new Date(), null, Phaser.Tilemap.TILED_JSON
 
-		@game.load.spritesheet('sprites', '/assets/tiles.png', 8, 8, 16);
+		@game.load.spritesheet('sprites', '/assets/tiles.png?' + new Date(), 8, 8, 16);
 
 		@game.load.script('filter-filmgrain', '/assets/filters/filmgrain.js');
 
@@ -48,7 +50,7 @@ class App
 
 		@map = new Map @game
 
-		@game.stage.filters = [@filter[0]]
+		# @game.stage.filters = [@filter[0]]
 
 		return
 
