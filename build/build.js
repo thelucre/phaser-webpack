@@ -93,9 +93,9 @@
 	
 	  App.prototype.create = function() {
 	    this.filter[0] = this.game.add.filter('FilmGrain');
-	    this.filter[0].size = 0.05;
-	    this.filter[0].amount = 0.05;
-	    this.filter[0].alpha = 0.05;
+	    this.filter[0].size = 0.01;
+	    this.filter[0].amount = 0.03;
+	    this.filter[0].alpha = 0.01;
 	    this.game.stage.filters = [this.filter[0]];
 	    window.cursors = this.game.input.keyboard.createCursorKeys();
 	    Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
@@ -113,7 +113,7 @@
 	  };
 	
 	  App.prototype.death = function(object) {
-	    this.game.state.start('game');
+	    this.game.state.start('game', true, false);
 	  };
 	
 	  return App;
@@ -21949,6 +21949,7 @@
 	    this.view = new Phaser.Sprite(this.game, 0, 0, 'sprites', this.data.gid - 1);
 	    this.layer.addChild(this.view);
 	    this.view.smoothed = false;
+	    this.view.anchor = new Phaser.Point(0.5, 0.5);
 	    this.position = new Phaser.Point(this.data.x / options.tilesize, (this.data.y / options.tilesize) - 1);
 	    this.updateViewPosition();
 	    return this;
@@ -21982,8 +21983,8 @@
 	   */
 	
 	  Entity.prototype.updateViewPosition = function() {
-	    this.view.x = this.position.x * options.tilesize;
-	    this.view.y = this.position.y * options.tilesize;
+	    this.view.x = this.position.x * options.tilesize + options.tilesize / 2;
+	    this.view.y = this.position.y * options.tilesize + options.tilesize / 2;
 	  };
 	
 	
@@ -22092,7 +22093,7 @@
 	    return Finish.__super__.constructor.apply(this, arguments);
 	  }
 	
-	  Finish.prototype.onPlayerTouch = function() {
+	  Finish.prototype.onPlayerTouch = function(player) {
 	    console.log('you beat this level');
 	    app.nextLevel();
 	    return true;
@@ -22263,7 +22264,9 @@
 	      this.killPlayer();
 	      return;
 	    }
-	    this.timerID = setTimeout(this.reactivate, this.inactiveTime);
+	    if (this.data.properties.times != null) {
+	      this.timerID = setTimeout(this.reactivate, this.inactiveTime);
+	    }
 	  };
 	
 	
@@ -22273,7 +22276,9 @@
 	
 	  Tile.prototype.reactivate = function() {
 	    Tile.__super__.reactivate.apply(this, arguments);
-	    this.timerID = setTimeout(this.deactivate, this.activeTime);
+	    if (this.data.properties.times != null) {
+	      this.timerID = setTimeout(this.deactivate, this.activeTime);
+	    }
 	  };
 	
 	
@@ -22283,6 +22288,7 @@
 	
 	  Tile.prototype.killPlayer = function() {
 	    console.log('you fell into blissful eternity');
+	    this.stopTimer();
 	    app.death(this);
 	  };
 	

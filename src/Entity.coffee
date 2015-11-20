@@ -5,7 +5,7 @@ All interactive objects in the demo extend this class
 
 class Entity
 
-	constructor: (@game, @layer, @data) ->
+	constructor: (@game, @layer, @data) -> 
 		# Container for linked objects by customer `id` property
 		@targets = []
 
