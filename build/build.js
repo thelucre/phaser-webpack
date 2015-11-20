@@ -67,6 +67,7 @@
 	
 	App = (function() {
 	  function App() {
+	    this.death = bind(this.death, this);
 	    this.nextLevel = bind(this.nextLevel, this);
 	    this.update = bind(this.update, this);
 	    this.create = bind(this.create, this);
@@ -109,6 +110,10 @@
 	  App.prototype.nextLevel = function() {
 	    this.level++;
 	    return this.game.state.start('game');
+	  };
+	
+	  App.prototype.death = function(object) {
+	    this.game.state.start('game');
 	  };
 	
 	  return App;
@@ -9375,19 +9380,23 @@
 	      laser: __webpack_require__(11),
 	      finish: __webpack_require__(12),
 	      "switch": __webpack_require__(13),
-	      warp: __webpack_require__(14)
+	      warp: __webpack_require__(14),
+	      tile: __webpack_require__(15)
 	    };
 	    this.objects = [];
 	    this.map = this.game.add.tilemap('map_01');
 	    this.layers = {
 	      environment: null,
-	      objects: null
+	      objects: null,
+	      player: null
 	    };
 	    this.map.addTilesetImage('tiles');
 	    this.layers.environment = this.map.createLayer('environment');
 	    this.layers.environment.setScale(options.scale);
 	    this.layers.objects = this.map.createBlankLayer('objects');
 	    this.layers.objects.setScale(options.scale);
+	    this.layers.player = this.map.createBlankLayer('player');
+	    this.layers.player.setScale(options.scale);
 	    this.mapData = Phaser.TilemapParser.parse(this.game, 'map_01');
 	    _.each(this.mapData.objects.objects, (function(_this) {
 	      return function(object, i) {
@@ -9450,7 +9459,7 @@
 	   */
 	
 	  Map.prototype.makePlayer = function(object) {
-	    this.player = new this.objectClasses[object.name](this.game, this.layers.objects, object);
+	    this.player = new this.objectClasses[object.name](this.game, this.layers.player, object);
 	    cursors.up.onDown.add((function(_this) {
 	      return function() {
 	        if (_this.isValidMove(0, -1)) {
@@ -22049,7 +22058,7 @@
 	      return true;
 	    }
 	    console.log('you died by laser');
-	    this.game.state.start('game');
+	    app.death(this);
 	    return true;
 	  };
 	
@@ -22179,6 +22188,129 @@
 	})(Entity);
 	
 	module.exports = Warp;
+
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/*
+		Tile can move the player to different map locations
+	
+		Custom properties:
+		==================
+		times   "activeTime,inactiveTime" comma strings in millis
+		delay   "delay" in millis
+	 */
+	var Entity, Tile, _,
+	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+	  hasProp = {}.hasOwnProperty;
+	
+	_ = __webpack_require__(7);
+	
+	Entity = __webpack_require__(10);
+	
+	Tile = (function(superClass) {
+	  extend(Tile, superClass);
+	
+	  function Tile(game, layer, data) {
+	    var times;
+	    this.game = game;
+	    this.layer = layer;
+	    this.data = data;
+	    this.stopTimer = bind(this.stopTimer, this);
+	    this.startTimer = bind(this.startTimer, this);
+	    this.killPlayer = bind(this.killPlayer, this);
+	    this.reactivate = bind(this.reactivate, this);
+	    this.deactivate = bind(this.deactivate, this);
+	    this.onPlayerTouch = bind(this.onPlayerTouch, this);
+	    Tile.__super__.constructor.call(this, this.game, this.layer, this.data);
+	    if (this.data.properties.times != null) {
+	      times = this.data.properties.times.split(',');
+	      this.activeTime = times[0];
+	      this.inactiveTime = times[1];
+	      this.delay = this.data.properties.delay || 0;
+	      this.startTimer();
+	      window.addEventListener('focus', this.startTimer);
+	      window.addEventListener('blur', this.stopTimer);
+	    }
+	    return this;
+	  }
+	
+	
+	  /*
+	  	Player should die if the tile is deactivated when they touch it
+	   */
+	
+	  Tile.prototype.onPlayerTouch = function(player) {
+	    this.player = player;
+	    if (this.deactivated) {
+	      this.killPlayer();
+	    }
+	    return true;
+	  };
+	
+	
+	  /*
+	  	Kill the sprite and if the player is on this tile, them too X(
+	   */
+	
+	  Tile.prototype.deactivate = function() {
+	    Tile.__super__.deactivate.apply(this, arguments);
+	    if ((this.player != null) && this.player.position.x === this.position.x && this.player.position.y === this.position.y) {
+	      this.killPlayer();
+	      return;
+	    }
+	    this.timerID = setTimeout(this.reactivate, this.inactiveTime);
+	  };
+	
+	
+	  /*
+	  	Re add the sprite to the scene and make the tile walkable
+	   */
+	
+	  Tile.prototype.reactivate = function() {
+	    Tile.__super__.reactivate.apply(this, arguments);
+	    this.timerID = setTimeout(this.deactivate, this.activeTime);
+	  };
+	
+	
+	  /*
+	  	Player dies
+	   */
+	
+	  Tile.prototype.killPlayer = function() {
+	    console.log('you fell into blissful eternity');
+	    app.death(this);
+	  };
+	
+	
+	  /*
+	  	Builds a timer for deactivating the tile
+	   */
+	
+	  Tile.prototype.startTimer = function() {
+	    this.timerID = setTimeout(this.deactivate, (parseInt(this.activeTime)) + (parseInt(this.delay)));
+	  };
+	
+	
+	  /*
+	  	Kills the timer, if any is set
+	   */
+	
+	  Tile.prototype.stopTimer = function() {
+	    if (this.timerID != null) {
+	      clearTimeout(this.timerID);
+	    }
+	  };
+	
+	  return Tile;
+	
+	})(Entity);
+	
+	module.exports = Tile;
 
 
 /***/ }
