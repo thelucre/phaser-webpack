@@ -5,7 +5,7 @@ Entity = require './Entity.coffee'
 
 class Finish extends Entity
 
-	onPlayerTouch: () =>
+	onPlayerTouch: (player) =>
 		console.log 'you beat this level'
 		app.nextLevel()
 		return true

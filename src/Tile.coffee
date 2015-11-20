@@ -49,8 +49,9 @@ class Tile extends Entity
 			@killPlayer()
 			return
 
-		# Ignite the timer to reactivate the tile
-		@timerID = setTimeout @reactivate, @inactiveTime
+		if @data.properties.times?
+			# Ignite the timer to reactivate the tile
+			@timerID = setTimeout @reactivate, @inactiveTime
 		return
 
 	###
@@ -59,8 +60,9 @@ class Tile extends Entity
 	reactivate: () =>
 		super
 
-		# Ignite the timer to deactivate the tile
-		@timerID = setTimeout @deactivate, @activeTime
+		if @data.properties.times?
+			# Ignite the timer to deactivate the tile
+			@timerID = setTimeout @deactivate, @activeTime
 		return
 
 	###
@@ -68,7 +70,7 @@ class Tile extends Entity
 	###
 	killPlayer: () =>
 		console.log 'you fell into blissful eternity'
-
+		@stopTimer()
 		# restart the game state
 		app.death @
 		return
