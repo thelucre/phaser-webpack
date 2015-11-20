@@ -10,6 +10,7 @@ class Map
 			finish: require './Finish.coffee'
 			switch: require './Switch.coffee'
 			warp: require './Warp.coffee'
+			tile: require './Tile.coffee'
 
 		# container for objects created from Tiled map data
 		@objects = []
@@ -20,6 +21,7 @@ class Map
 		@layers =
 			environment: null
 			objects: null
+			player: null
 
 		# and load hte tileset into the map object
 		@map.addTilesetImage 'tiles'
@@ -31,6 +33,9 @@ class Map
 		# setup a rednering layer for game objects
 		@layers.objects = @map.createBlankLayer 'objects'
 		@layers.objects.setScale options.scale
+
+		@layers.player = @map.createBlankLayer 'player'
+		@layers.player.setScale options.scale
 
 		# get the Tiled map data for custom object loading
 		@mapData = Phaser.TilemapParser.parse @game, 'map_01'
@@ -86,7 +91,7 @@ class Map
 	map's environment.
 	###
 	makePlayer: (object) =>
-		@player = new @objectClasses[object.name] @game, @layers.objects, object
+		@player = new @objectClasses[object.name] @game, @layers.player, object
 
 		cursors.up.onDown.add () =>
 			if @isValidMove 0, -1
