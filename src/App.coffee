@@ -77,4 +77,8 @@ class App
 		# restart the game state
 		@game.state.start('game')
 
+	death: (object) =>
+		@game.state.start('game')
+		return
+
 window.app = new App
