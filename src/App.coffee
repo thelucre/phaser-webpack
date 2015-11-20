@@ -49,9 +49,9 @@ class App
 
 		# setup up filter values
 		@filter[0] = @game.add.filter('FilmGrain');
-		@filter[0].size = 0.05;
-		@filter[0].amount = 0.05;
-		@filter[0].alpha = 0.05;
+		@filter[0].size = 0.01;
+		@filter[0].amount = 0.03;
+		@filter[0].alpha = 0.01;
 
 		# add the filter effect to the scene
 		@game.stage.filters = [@filter[0]]
@@ -78,7 +78,7 @@ class App
 		@game.state.start('game')
 
 	death: (object) =>
-		@game.state.start('game')
+		@game.state.start('game', true, false)
 		return
 
 window.app = new App

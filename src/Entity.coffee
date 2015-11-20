@@ -16,6 +16,8 @@ class Entity
 		# To keep our pixelated crisposity during scaling
 		@view.smoothed = false;
 
+		@view.anchor = new Phaser.Point 0.5, 0.5
+
 		# Converts screen position to abstract tile coordinates for game logic
 		@position = new Phaser.Point @data.x / options.tilesize, (@data.y / options.tilesize) - 1
 
@@ -45,8 +47,8 @@ class Entity
 	Using the tile coordinate, render the object at the appropriate screen position
 	###
 	updateViewPosition: () =>
-		@view.x = @position.x * options.tilesize
-		@view.y = @position.y * options.tilesize
+		@view.x = @position.x * options.tilesize + options.tilesize / 2
+		@view.y = @position.y * options.tilesize + options.tilesize / 2
 		return
 
 	###
