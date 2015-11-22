@@ -10,7 +10,10 @@ class Switch extends Entity
 	onPlayerTouch: () =>
 		console.log 'you hit the switch'
 		_.each @targets, (target) =>
-			target.deactivate()
+			if target.deactivated && @data.properties.toggle?
+				target.reactivate()
+			else
+				target.deactivate()
 		return true
 
 module.exports = Switch

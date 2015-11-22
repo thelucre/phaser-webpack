@@ -71,7 +71,8 @@
                  "name":"switch",
                  "properties":
                     {
-                     "targets":"laser1"
+                     "targets":"laser1",
+                     "toggle":""
                     },
                  "rotation":0,
                  "type":"",
