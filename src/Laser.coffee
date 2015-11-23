@@ -1,7 +1,7 @@
 ###
 	A simple dead zone
 ###
-Entity = require './Test.coffee'
+Entity = require './Entity.coffee'
 
 class Laser extends Entity
 

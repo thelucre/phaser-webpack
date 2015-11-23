@@ -1,5 +1,5 @@
 _ = require 'lodash'
-Test = require './Test.coffee'
+Test = require './Entity.coffee'
 
 class Map
 	constructor: (@game) ->
@@ -44,12 +44,10 @@ class Map
 		@map.createFromObjects('objects', 'warp', 'sprites', 6, true, true, @objectGroup, @objectClasses.warp)
 		@map.createFromObjects('objects', 'switch', 'sprites', 3, true, true, @objectGroup, @objectClasses.switch)
 		@map.createFromObjects('objects', 'tile', 'sprites', 3, true, true, @objectGroup, @objectClasses.tile)
-		# @map.createFromObjects('objects', 'switch', 'sprites', 3, true, true, @objectGroup, @objectClasses.switch)
 
 		@layers.foreground = @map.createLayer 'foreground'
 		if @layers.foreground?
 			@layers.foreground.setScale options.scale
-
 
 		# init game object instances
 		_.each @playerGroup.children, (obj) =>
@@ -60,15 +58,12 @@ class Map
 
 		# connect any objects that have targets (IE: Siwtches target other game objects)
 		_.each @objectGroup.children, (obj) =>
-
 			return unless obj.targets
-
 			targets = obj.targets.split ','
-
 			obj.targetObjs = @findById targets
 			return
 
-		return
+		return @
 
 	###
 	Looks for any game objects that match an array of ID strings.

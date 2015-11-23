@@ -8,7 +8,7 @@
 ###
 _ = require 'lodash'
 
-Entity = require './Test.coffee'
+Entity = require './Entity.coffee'
 
 STATE =
 	WAITING: 0

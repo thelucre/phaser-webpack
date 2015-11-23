@@ -3,7 +3,7 @@
 ###
 _ = require 'lodash'
 
-Entity = require './Test.coffee'
+Entity = require './Entity.coffee'
 
 class Warp extends Entity
 

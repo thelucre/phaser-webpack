@@ -1,7 +1,7 @@
 ###
 	Player for the game
 ###
-Entity = require './Test.coffee'
+Entity = require './Entity.coffee'
 
 class Player extends Entity
 
