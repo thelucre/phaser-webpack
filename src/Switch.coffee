@@ -8,14 +8,15 @@
 ###
 _ = require 'lodash'
 
-Entity = require './Entity.coffee'
+Entity = require './Test.coffee'
 
 class Switch extends Entity
 
 	onPlayerTouch: () =>
 		console.log 'you hit the switch'
-		_.each @targets, (target) =>
-			if target.deactivated && @data.properties.toggle?
+		_.each @targetObjs, (target) =>
+			console.log target
+			if !target.active && @toggle?
 				target.reactivate()
 			else
 				target.deactivate()

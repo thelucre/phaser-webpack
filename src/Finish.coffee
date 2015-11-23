@@ -1,7 +1,7 @@
 ###
 	Our win condition
 ###
-Entity = require './Entity.coffee'
+Entity = require './Test.coffee'
 
 class Finish extends Entity
 
