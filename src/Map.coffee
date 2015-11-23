@@ -5,6 +5,7 @@ class Map
 
 		# Coffeescript classes to create game object instances
 		@objectClasses =
+			entity: require './Entity.coffee'
 			player: require './Player.coffee'
 			laser: require './Laser.coffee'
 			finish: require './Finish.coffee'
@@ -80,8 +81,12 @@ class Map
 			@makePlayer object
 
 		# Otherwise, build a custom instance (which will generate the Phaser sprite)
-		else
+		else if @objectClasses[object.name]?
 			@objects.push new @objectClasses[object.name]( @game, @layers.objects, object )
+
+		# Or build a simple entity object (good for dummy tiles that can be activated or deactivated )
+		else
+			@objects.push new @objectClasses['entity']( @game, @layers.objects, object )
 
 		return
 

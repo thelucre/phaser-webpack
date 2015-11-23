@@ -55,6 +55,7 @@ class Entity
 	When a player interacts with this tile. Override.
 	###
 	onPlayerTouch: () =>
+		return true
 		return if @deactivated
 		return
 
