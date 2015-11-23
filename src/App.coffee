@@ -14,11 +14,11 @@ window.options =
 class App
 
 	constructor: () ->
-		@level = 3;
+		@level = 1;
 
 		@filter = []
 
-		@game = new Phaser.Game 160, 160, Phaser.AUTO, 'game', {
+		@game = new Phaser.Game 160, 160, Phaser.CANVAS, 'game', {
 			preload: @preload
 			create: @create
 			update: @update
@@ -62,6 +62,8 @@ class App
 		# Enabled pixel-perfect scaling :D
 		Phaser.Canvas.setImageRenderingCrisp(@game.canvas)
 		PIXI.scaleModes.DEFAULT = PIXI.scaleModes.NEAREST;
+		@game.stage.smoothed = false
+		Phaser.Canvas.setSmoothingEnabled @game.context, false
 
 		#  create the map object
 		@map = new Map @game
