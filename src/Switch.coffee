@@ -1,5 +1,10 @@
 ###
 	Switch can deactivate other objects
+
+	Custom properties:
+	==================
+	toggle   "" will toggle targets activate/deactivate, not jsut a single fire
+
 ###
 _ = require 'lodash'
 

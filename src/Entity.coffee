@@ -1,6 +1,13 @@
 ###
 Generic game object class
 All interactive objects in the demo extend this class
+
+	Custom properties:
+	==================
+	deactivated   ""								entity will be deactivated on load
+	targets 			"target1,target2" comma delimited string of target object IDs
+	id 						"objectID" 				unique string
+
 ###
 
 class Entity
@@ -9,9 +16,10 @@ class Entity
 		# Container for linked objects by customer `id` property
 		@targets = []
 
+		@deactivated = false
+
 		# Creates the Phaser Sprite based on the tile ID from Tiled
 		@view = new Phaser.Sprite @game, 0, 0, 'sprites', @data.gid - 1
-		@layer.addChild @view
 
 		# To keep our pixelated crisposity during scaling
 		@view.smoothed = false;
@@ -22,6 +30,11 @@ class Entity
 		@position = new Phaser.Point @data.x / options.tilesize, (@data.y / options.tilesize) - 1
 
 		@updateViewPosition()
+
+		if @data.properties.deactivated? then	@deactivate()
+		else
+			@deactivated = true
+			@reactivate()
 
 		return @
 
@@ -64,8 +77,10 @@ class Entity
 	###
 	deactivate: () =>
 		return if @deactivated
+		console.log 'deactivating'
 		@deactivated = true
-		@view.parent.removeChild @view
+		if @view.parent?
+			@view.parent.removeChild @view
 		return
 
 	###
