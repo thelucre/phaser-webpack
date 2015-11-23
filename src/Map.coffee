@@ -1,10 +1,12 @@
 _ = require 'lodash'
+Test = require './Entity.coffee'
 
 class Map
 	constructor: (@game) ->
 
 		# Coffeescript classes to create game object instances
 		@objectClasses =
+			entity: require './Entity.coffee'
 			player: require './Player.coffee'
 			laser: require './Laser.coffee'
 			finish: require './Finish.coffee'
@@ -26,35 +28,42 @@ class Map
 		# and load hte tileset into the map object
 		@map.addTilesetImage 'tiles'
 
+		console.log @map
+
 		# render the static environment tiles
 		@layers.environment = @map.createLayer 'environment'
 		@layers.environment.setScale options.scale
 
-		# setup a rednering layer for game objects
-		@layers.objects = @map.createBlankLayer 'objects'
-		@layers.objects.setScale options.scale
+		# Groups of objects will hold instance of game logic classes
+		@objectGroup = @game.add.group()
+		@playerGroup = @game.add.group()
 
-		@layers.player = @map.createBlankLayer 'player'
-		@layers.player.setScale options.scale
+		@map.createFromObjects('objects', 'player', 'sprites', 0, true, true, @playerGroup, @objectClasses.player)
+		@map.createFromObjects('objects', 'laser', 'sprites', 1, true, true, @objectGroup, @objectClasses.laser)
+		@map.createFromObjects('objects', 'finish', 'sprites', 2, true, true, @objectGroup, @objectClasses.finish)
+		@map.createFromObjects('objects', 'warp', 'sprites', 6, true, true, @objectGroup, @objectClasses.warp)
+		@map.createFromObjects('objects', 'switch', 'sprites', 3, true, true, @objectGroup, @objectClasses.switch)
+		@map.createFromObjects('objects', 'tile', 'sprites', 3, true, true, @objectGroup, @objectClasses.tile)
 
-		# get the Tiled map data for custom object loading
-		@mapData = Phaser.TilemapParser.parse @game, 'map_01'
+		@layers.foreground = @map.createLayer 'foreground'
+		if @layers.foreground?
+			@layers.foreground.setScale options.scale
 
-		# Build all map objects and views
-		_.each @mapData.objects.objects, (object, i) =>
-			@makeObject object
+		# init game object instances
+		_.each @playerGroup.children, (obj) =>
+			@makePlayer obj
+
+		_.each @objectGroup.children, (obj) =>
+			obj.init()
 
 		# connect any objects that have targets (IE: Siwtches target other game objects)
-		_.each @objects, (object) =>
-
-			return unless object.data.properties.targets
-
-			targets = object.data.properties.targets.split ','
-
-			object.targets = @findById targets
+		_.each @objectGroup.children, (obj) =>
+			return unless obj.targets
+			targets = obj.targets.split ','
+			obj.targetObjs = @findById targets
 			return
 
-		return
+		return @
 
 	###
 	Looks for any game objects that match an array of ID strings.
@@ -63,73 +72,59 @@ class Map
 	findById: (targets) =>
 		targetObjects = []
 
-		_.each @objects, (object) =>
-			return unless object.data.properties.id
-			if (targets.indexOf(object.data.properties.id) >= 0)
+		_.each @objectGroup.children, (object) =>
+			return unless object.id?
+			if (targets.indexOf(object.id) >= 0)
 				targetObjects.push object
 			return
 
 		return targetObjects
 
 	###
-	Create Coffee objects from Tiled Object layer data
-	###
-	makeObject: (object) =>
-		# Player gets a special setup
-		if object.name == 'player'
-			@makePlayer object
-
-		# Otherwise, build a custom instance (which will generate the Phaser sprite)
-		else
-			@objects.push new @objectClasses[object.name]( @game, @layers.objects, object )
-
-		return
-
-	###
 	Create a Player instance and bind input.
 	We bind at the map level because movement is directly related to the
 	map's environment.
 	###
-	makePlayer: (object) =>
-		@player = new @objectClasses[object.name] @game, @layers.player, object
+	makePlayer: (obj) =>
+		@player = obj.init()
 
 		cursors.up.onDown.add () =>
 			if @isValidMove 0, -1
-				@player.moveRelative 0,-1
+				obj.moveRelative 0,-1
 
 		cursors.down.onDown.add () =>
 			if @isValidMove 0,1
-				@player.moveRelative 0,1
+				obj.moveRelative 0,1
 
 		cursors.left.onDown.add () =>
 			if @isValidMove -1,0
-				@player.moveRelative -1,0
+				obj.moveRelative -1,0
 
 		cursors.right.onDown.add () =>
 			if @isValidMove 1,0
-				@player.moveRelative 1,0
-
+				obj.moveRelative 1,0
 		return
 
 	###
-	Checks if hte player can move to a tile includes:
+	Checks if the player can move to a tile includes:
 	A. If an object is at the upcoming position, trigger some interaction form the object
 	B. If the map enviornment is a collision tile, don't let the player move there
 	###
 	isValidMove: (x,y) =>
 		#  calculate the tile the player is moving to
-		movePos = @player.position.clone()
+		movePos = @player.coord.clone()
 		movePos.x += x
 		movePos.y += y
 
 		clean = true
 		# check if any objects exist at that tile
-		_.each @objects, (object) =>
-			if object.position.x == movePos.x && object.position.y == movePos.y
+		_.each @objectGroup.children, (object) =>
+
+			if object.coord.x == movePos.x && object.coord.y == movePos.y
 				# the interaction object decides if the player should continue its move or not
 				clean = object.onPlayerTouch @player
 			return
 
-		return clean && @mapData.layers[0].data[movePos.y][movePos.x].index != 6
+		return clean && @map.layers[0].data[movePos.y][movePos.x].index != 6
 
 module.exports = Map

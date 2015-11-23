@@ -9,8 +9,9 @@ class Warp extends Entity
 
 	onPlayerTouch: (player) =>
 		console.log 'you hit the warp'
-		if(@targets.length > 0)
-			pos = @targets[0].position
+		if(@targetObjs.length > 0)
+			console.log @targetObjs[0]
+			pos = @targetObjs[0].coord
 			player.move pos.x, pos.y
 			return false
 		return true

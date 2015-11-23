@@ -14,7 +14,7 @@ window.options =
 class App
 
 	constructor: () ->
-		@level = 1;
+		@level = 3;
 
 		@filter = []
 

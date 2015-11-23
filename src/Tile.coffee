@@ -10,32 +10,54 @@ _ = require 'lodash'
 
 Entity = require './Entity.coffee'
 
+STATE =
+	WAITING: 0
+	ACTIVE: 1
+	INACTIVE: 2
+
 class Tile extends Entity
 
-	constructor: (@game, @layer, @data) ->
-		super @game, @layer, @data
+	constructor: (@game, x, y, key, frame) ->
+		super @game, x, y, key, frame
+		return
+
+	init: () =>
+		super
+		@state = STATE.WAITING
+		@timer = 0
 
 		# Grab timer properties from Tiled object data
-		if @data.properties.times?
-			times = @data.properties.times.split ','
-			@activeTime = times[0]
-			@inactiveTime = times[1]
+		if @times?
+			times = @times.split ','
+			@activeTime = parseInt times[0]
+			@inactiveTime = parseInt times[1]
 
-			@delay = @data.properties.delay || 0
-			@startTimer()
+			@delay = parseInt(@delay) || 0
 
-			# To handle window blurs messing up timeOuts, stop all
-			# timers on window exit and readd them on focus
-			window.addEventListener 'focus', @startTimer
-			window.addEventListener 'blur', @stopTimer
+			@timer = @game.time.create false
+			@timer.add @delay, @runDelay, @
+			@timer.start()
+
 		return @
+
+	###
+
+	###
+	runDelay: () =>
+		@timer = @game.time.create false
+		if @deactivated
+			@timer.add @inactiveTime, @reactivate, @
+		else
+			@timer.add @activeTime, @deactivate, @
+		@timer.start()
+		return
 
 	###
 	Player should die if the tile is deactivated when they touch it
 	###
 	onPlayerTouch: (player) =>
 		@player = player
-		if @deactivated
+		if !@active
 			@killPlayer()
 		return true
 
@@ -45,13 +67,14 @@ class Tile extends Entity
 	deactivate: () =>
 		super
 
-		if @player? and @player.position.x == @position.x and @player.position.y == @position.y
+		if @player? and @player.coord.x == @coord.x and @player.coord.y == @coord.y
 			@killPlayer()
 			return
 
-		if @data.properties.times?
-			# Ignite the timer to reactivate the tile
-			@timerID = setTimeout @reactivate, @inactiveTime
+		if @times?
+			@timer = @game.time.create false
+			@timer.add @inactiveTime, @reactivate, @
+			@timer.start()
 		return
 
 	###
@@ -60,9 +83,10 @@ class Tile extends Entity
 	reactivate: () =>
 		super
 
-		if @data.properties.times?
-			# Ignite the timer to deactivate the tile
-			@timerID = setTimeout @deactivate, @activeTime
+		if @times?
+			@timer = @game.time.create false
+			@timer.add @inactiveTime, @deactivate, @
+			@timer.start()
 		return
 
 	###

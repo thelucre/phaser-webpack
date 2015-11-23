@@ -56,6 +56,7 @@
                  "properties":
                     {
                      "delay":"0",
+                     "frameOverride":"8",
                      "times":"1000,1000"
                     },
                  "rotation":0,
@@ -73,6 +74,7 @@
                  "properties":
                     {
                      "delay":"200",
+                     "frameOverride":"8",
                      "times":"1000,1000"
                     },
                  "rotation":0,
@@ -90,6 +92,7 @@
                  "properties":
                     {
                      "delay":"400",
+                     "frameOverride":"8",
                      "times":"1000,1000"
                     },
                  "rotation":0,
@@ -107,6 +110,7 @@
                  "properties":
                     {
                      "delay":"600",
+                     "frameOverride":"8",
                      "times":"1000,1000"
                     },
                  "rotation":0,

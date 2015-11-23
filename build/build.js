@@ -72,7 +72,7 @@
 	    this.update = bind(this.update, this);
 	    this.create = bind(this.create, this);
 	    this.preload = bind(this.preload, this);
-	    this.level = 1;
+	    this.level = 3;
 	    this.filter = [];
 	    this.game = new Phaser.Game(160, 160, Phaser.AUTO, 'game', {
 	      preload: this.preload,
@@ -9363,19 +9363,21 @@
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Map, _,
+	var Map, Test, _,
 	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 	
 	_ = __webpack_require__(7);
+	
+	Test = __webpack_require__(10);
 	
 	Map = (function() {
 	  function Map(game) {
 	    this.game = game;
 	    this.isValidMove = bind(this.isValidMove, this);
 	    this.makePlayer = bind(this.makePlayer, this);
-	    this.makeObject = bind(this.makeObject, this);
 	    this.findById = bind(this.findById, this);
 	    this.objectClasses = {
+	      entity: __webpack_require__(10),
 	      player: __webpack_require__(9),
 	      laser: __webpack_require__(11),
 	      finish: __webpack_require__(12),
@@ -9391,29 +9393,42 @@
 	      player: null
 	    };
 	    this.map.addTilesetImage('tiles');
+	    console.log(this.map);
 	    this.layers.environment = this.map.createLayer('environment');
 	    this.layers.environment.setScale(options.scale);
-	    this.layers.objects = this.map.createBlankLayer('objects');
-	    this.layers.objects.setScale(options.scale);
-	    this.layers.player = this.map.createBlankLayer('player');
-	    this.layers.player.setScale(options.scale);
-	    this.mapData = Phaser.TilemapParser.parse(this.game, 'map_01');
-	    _.each(this.mapData.objects.objects, (function(_this) {
-	      return function(object, i) {
-	        return _this.makeObject(object);
+	    this.objectGroup = this.game.add.group();
+	    this.playerGroup = this.game.add.group();
+	    this.map.createFromObjects('objects', 'player', 'sprites', 0, true, true, this.playerGroup, this.objectClasses.player);
+	    this.map.createFromObjects('objects', 'laser', 'sprites', 1, true, true, this.objectGroup, this.objectClasses.laser);
+	    this.map.createFromObjects('objects', 'finish', 'sprites', 2, true, true, this.objectGroup, this.objectClasses.finish);
+	    this.map.createFromObjects('objects', 'warp', 'sprites', 6, true, true, this.objectGroup, this.objectClasses.warp);
+	    this.map.createFromObjects('objects', 'switch', 'sprites', 3, true, true, this.objectGroup, this.objectClasses["switch"]);
+	    this.map.createFromObjects('objects', 'tile', 'sprites', 3, true, true, this.objectGroup, this.objectClasses.tile);
+	    this.layers.foreground = this.map.createLayer('foreground');
+	    if (this.layers.foreground != null) {
+	      this.layers.foreground.setScale(options.scale);
+	    }
+	    _.each(this.playerGroup.children, (function(_this) {
+	      return function(obj) {
+	        return _this.makePlayer(obj);
 	      };
 	    })(this));
-	    _.each(this.objects, (function(_this) {
-	      return function(object) {
+	    _.each(this.objectGroup.children, (function(_this) {
+	      return function(obj) {
+	        return obj.init();
+	      };
+	    })(this));
+	    _.each(this.objectGroup.children, (function(_this) {
+	      return function(obj) {
 	        var targets;
-	        if (!object.data.properties.targets) {
+	        if (!obj.targets) {
 	          return;
 	        }
-	        targets = object.data.properties.targets.split(',');
-	        object.targets = _this.findById(targets);
+	        targets = obj.targets.split(',');
+	        obj.targetObjs = _this.findById(targets);
 	      };
 	    })(this));
-	    return;
+	    return this;
 	  }
 	
 	
@@ -9425,12 +9440,12 @@
 	  Map.prototype.findById = function(targets) {
 	    var targetObjects;
 	    targetObjects = [];
-	    _.each(this.objects, (function(_this) {
+	    _.each(this.objectGroup.children, (function(_this) {
 	      return function(object) {
-	        if (!object.data.properties.id) {
+	        if (object.id == null) {
 	          return;
 	        }
-	        if (targets.indexOf(object.data.properties.id) >= 0) {
+	        if (targets.indexOf(object.id) >= 0) {
 	          targetObjects.push(object);
 	        }
 	      };
@@ -9440,51 +9455,38 @@
 	
 	
 	  /*
-	  	Create Coffee objects from Tiled Object layer data
-	   */
-	
-	  Map.prototype.makeObject = function(object) {
-	    if (object.name === 'player') {
-	      this.makePlayer(object);
-	    } else {
-	      this.objects.push(new this.objectClasses[object.name](this.game, this.layers.objects, object));
-	    }
-	  };
-	
-	
-	  /*
 	  	Create a Player instance and bind input.
 	  	We bind at the map level because movement is directly related to the
 	  	map's environment.
 	   */
 	
-	  Map.prototype.makePlayer = function(object) {
-	    this.player = new this.objectClasses[object.name](this.game, this.layers.player, object);
+	  Map.prototype.makePlayer = function(obj) {
+	    this.player = obj.init();
 	    cursors.up.onDown.add((function(_this) {
 	      return function() {
 	        if (_this.isValidMove(0, -1)) {
-	          return _this.player.moveRelative(0, -1);
+	          return obj.moveRelative(0, -1);
 	        }
 	      };
 	    })(this));
 	    cursors.down.onDown.add((function(_this) {
 	      return function() {
 	        if (_this.isValidMove(0, 1)) {
-	          return _this.player.moveRelative(0, 1);
+	          return obj.moveRelative(0, 1);
 	        }
 	      };
 	    })(this));
 	    cursors.left.onDown.add((function(_this) {
 	      return function() {
 	        if (_this.isValidMove(-1, 0)) {
-	          return _this.player.moveRelative(-1, 0);
+	          return obj.moveRelative(-1, 0);
 	        }
 	      };
 	    })(this));
 	    cursors.right.onDown.add((function(_this) {
 	      return function() {
 	        if (_this.isValidMove(1, 0)) {
-	          return _this.player.moveRelative(1, 0);
+	          return obj.moveRelative(1, 0);
 	        }
 	      };
 	    })(this));
@@ -9492,25 +9494,25 @@
 	
 	
 	  /*
-	  	Checks if hte player can move to a tile includes:
+	  	Checks if the player can move to a tile includes:
 	  	A. If an object is at the upcoming position, trigger some interaction form the object
 	  	B. If the map enviornment is a collision tile, don't let the player move there
 	   */
 	
 	  Map.prototype.isValidMove = function(x, y) {
 	    var clean, movePos;
-	    movePos = this.player.position.clone();
+	    movePos = this.player.coord.clone();
 	    movePos.x += x;
 	    movePos.y += y;
 	    clean = true;
-	    _.each(this.objects, (function(_this) {
+	    _.each(this.objectGroup.children, (function(_this) {
 	      return function(object) {
-	        if (object.position.x === movePos.x && object.position.y === movePos.y) {
+	        if (object.coord.x === movePos.x && object.coord.y === movePos.y) {
 	          clean = object.onPlayerTouch(_this.player);
 	        }
 	      };
 	    })(this));
-	    return clean && this.mapData.layers[0].data[movePos.y][movePos.x].index !== 6;
+	    return clean && this.map.layers[0].data[movePos.y][movePos.x].index !== 6;
 	  };
 	
 	  return Map;
@@ -21903,6 +21905,7 @@
 		Player for the game
 	 */
 	var Entity, Player,
+	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
 	
@@ -21912,8 +21915,15 @@
 	  extend(Player, superClass);
 	
 	  function Player() {
+	    this.init = bind(this.init, this);
 	    return Player.__super__.constructor.apply(this, arguments);
 	  }
+	
+	  Player.prototype.init = function() {
+	    Player.__super__.init.apply(this, arguments);
+	    console.log(this);
+	    return this;
+	  };
 	
 	  return Player;
 	
@@ -21930,61 +21940,57 @@
 	/*
 	Generic game object class
 	All interactive objects in the demo extend this class
+	
+		Custom properties:
+		==================
+		frameOverride "2"								tile index to override for spriting
+		deactivated   ""								entity will be deactivated on load
+		targets 			"target1,target2" comma delimited string of target object IDs
+		id 						"objectID" 				unique string
 	 */
 	var Entity,
-	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+	  hasProp = {}.hasOwnProperty;
 	
-	Entity = (function() {
-	  function Entity(game, layer, data) {
+	Entity = (function(superClass) {
+	  extend(Entity, superClass);
+	
+	  function Entity(game, x, y, key, frame) {
 	    this.game = game;
-	    this.layer = layer;
-	    this.data = data;
-	    this.reactivate = bind(this.reactivate, this);
-	    this.deactivate = bind(this.deactivate, this);
-	    this.onPlayerTouch = bind(this.onPlayerTouch, this);
 	    this.updateViewPosition = bind(this.updateViewPosition, this);
 	    this.move = bind(this.move, this);
 	    this.moveRelative = bind(this.moveRelative, this);
-	    this.targets = [];
-	    this.view = new Phaser.Sprite(this.game, 0, 0, 'sprites', this.data.gid - 1);
-	    this.layer.addChild(this.view);
-	    this.view.smoothed = false;
-	    this.view.anchor = new Phaser.Point(0.5, 0.5);
-	    this.position = new Phaser.Point(this.data.x / options.tilesize, (this.data.y / options.tilesize) - 1);
-	    this.updateViewPosition();
-	    return this;
+	    this.reactivate = bind(this.reactivate, this);
+	    this.deactivate = bind(this.deactivate, this);
+	    this.onPlayerTouch = bind(this.onPlayerTouch, this);
+	    this.init = bind(this.init, this);
+	    Entity.__super__.constructor.call(this, this.game, x, y, key, frame);
+	    return;
 	  }
 	
 	
 	  /*
-	  	Moves the sprite to a tile position relative to the object's current position
+	  	Secondary init step because instance will not have Tiled properites until
+	  	after the Sprite subclass constructor runs
 	   */
 	
-	  Entity.prototype.moveRelative = function(x, y) {
-	    this.position.x += x;
-	    this.position.y += y;
-	    this.updateViewPosition();
-	  };
-	
-	
-	  /*
-	  	Moves the sprite to a specific location
-	   */
-	
-	  Entity.prototype.move = function(x, y) {
-	    this.position.x = x;
-	    this.position.y = y;
-	    this.updateViewPosition();
-	  };
-	
-	
-	  /*
-	  	Using the tile coordinate, render the object at the appropriate screen position
-	   */
-	
-	  Entity.prototype.updateViewPosition = function() {
-	    this.view.x = this.position.x * options.tilesize + options.tilesize / 2;
-	    this.view.y = this.position.y * options.tilesize + options.tilesize / 2;
+	  Entity.prototype.init = function() {
+	    this.targetObjs = [];
+	    this.originalGroup = this.parent;
+	    this.smoothed = false;
+	    this.active = true;
+	    if (this.frameOverride != null) {
+	      this.frame = parseInt(this.frameOverride);
+	    }
+	    this.coord = Phaser.Point.divide(this.position, new Phaser.Point(options.tilesize, options.tilesize));
+	    if (this.deactivated != null) {
+	      this.deactivate();
+	    } else {
+	      this.deactivated = true;
+	      this.reactivate();
+	    }
+	    return this;
 	  };
 	
 	
@@ -21993,6 +21999,7 @@
 	   */
 	
 	  Entity.prototype.onPlayerTouch = function() {
+	    return true;
 	    if (this.deactivated) {
 	      return;
 	    }
@@ -22004,11 +22011,12 @@
 	   */
 	
 	  Entity.prototype.deactivate = function() {
-	    if (this.deactivated) {
+	    if (!this.active) {
 	      return;
 	    }
-	    this.deactivated = true;
-	    this.view.parent.removeChild(this.view);
+	    console.log('deactivating');
+	    this.active = false;
+	    this.visible = false;
 	  };
 	
 	
@@ -22017,16 +22025,48 @@
 	   */
 	
 	  Entity.prototype.reactivate = function() {
-	    if (!this.deactivated) {
+	    if (this.active) {
 	      return;
 	    }
-	    this.deactivated = false;
-	    this.layer.addChild(this.view);
+	    console.log('reactivating');
+	    this.active = true;
+	    this.visible = true;
+	  };
+	
+	
+	  /*
+	  	Moves the sprite to a tile position relative to the object's current position
+	   */
+	
+	  Entity.prototype.moveRelative = function(x, y) {
+	    this.coord.x += x;
+	    this.coord.y += y;
+	    this.updateViewPosition();
+	  };
+	
+	
+	  /*
+	  	Moves the sprite to a specific location
+	   */
+	
+	  Entity.prototype.move = function(x, y) {
+	    this.coord.x = x;
+	    this.coord.y = y;
+	    this.updateViewPosition();
+	  };
+	
+	
+	  /*
+	  	Using the tile coordinate, render the object at the appropriate screen position
+	   */
+	
+	  Entity.prototype.updateViewPosition = function() {
+	    this.position = Phaser.Point.multiply(this.coord, new Phaser.Point(options.tilesize, options.tilesize));
 	  };
 	
 	  return Entity;
 	
-	})();
+	})(Phaser.Sprite);
 	
 	module.exports = Entity;
 
@@ -22055,7 +22095,7 @@
 	  }
 	
 	  Laser.prototype.onPlayerTouch = function() {
-	    if (this.deactivated) {
+	    if (!this.active) {
 	      return true;
 	    }
 	    console.log('you died by laser');
@@ -22113,6 +22153,10 @@
 	
 	/*
 		Switch can deactivate other objects
+	
+		Custom properties:
+		==================
+		toggle   "" will toggle targets activate/deactivate, not jsut a single fire
 	 */
 	var Entity, Switch, _,
 	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
@@ -22133,9 +22177,14 @@
 	
 	  Switch.prototype.onPlayerTouch = function() {
 	    console.log('you hit the switch');
-	    _.each(this.targets, (function(_this) {
+	    _.each(this.targetObjs, (function(_this) {
 	      return function(target) {
-	        return target.deactivate();
+	        console.log(target);
+	        if (!target.active && (_this.toggle != null)) {
+	          return target.reactivate();
+	        } else {
+	          return target.deactivate();
+	        }
 	      };
 	    })(this));
 	    return true;
@@ -22176,8 +22225,9 @@
 	  Warp.prototype.onPlayerTouch = function(player) {
 	    var pos;
 	    console.log('you hit the warp');
-	    if (this.targets.length > 0) {
-	      pos = this.targets[0].position;
+	    if (this.targetObjs.length > 0) {
+	      console.log(this.targetObjs[0]);
+	      pos = this.targetObjs[0].coord;
 	      player.move(pos.x, pos.y);
 	      return false;
 	    }
@@ -22204,7 +22254,7 @@
 		times   "activeTime,inactiveTime" comma strings in millis
 		delay   "delay" in millis
 	 */
-	var Entity, Tile, _,
+	var Entity, STATE, Tile, _,
 	  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
 	  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
 	  hasProp = {}.hasOwnProperty;
@@ -22213,32 +22263,59 @@
 	
 	Entity = __webpack_require__(10);
 	
+	STATE = {
+	  WAITING: 0,
+	  ACTIVE: 1,
+	  INACTIVE: 2
+	};
+	
 	Tile = (function(superClass) {
 	  extend(Tile, superClass);
 	
-	  function Tile(game, layer, data) {
-	    var times;
+	  function Tile(game, x, y, key, frame) {
 	    this.game = game;
-	    this.layer = layer;
-	    this.data = data;
 	    this.stopTimer = bind(this.stopTimer, this);
 	    this.startTimer = bind(this.startTimer, this);
 	    this.killPlayer = bind(this.killPlayer, this);
 	    this.reactivate = bind(this.reactivate, this);
 	    this.deactivate = bind(this.deactivate, this);
 	    this.onPlayerTouch = bind(this.onPlayerTouch, this);
-	    Tile.__super__.constructor.call(this, this.game, this.layer, this.data);
-	    if (this.data.properties.times != null) {
-	      times = this.data.properties.times.split(',');
-	      this.activeTime = times[0];
-	      this.inactiveTime = times[1];
-	      this.delay = this.data.properties.delay || 0;
-	      this.startTimer();
-	      window.addEventListener('focus', this.startTimer);
-	      window.addEventListener('blur', this.stopTimer);
+	    this.runDelay = bind(this.runDelay, this);
+	    this.init = bind(this.init, this);
+	    Tile.__super__.constructor.call(this, this.game, x, y, key, frame);
+	    return;
+	  }
+	
+	  Tile.prototype.init = function() {
+	    var times;
+	    Tile.__super__.init.apply(this, arguments);
+	    this.state = STATE.WAITING;
+	    this.timer = 0;
+	    if (this.times != null) {
+	      times = this.times.split(',');
+	      this.activeTime = parseInt(times[0]);
+	      this.inactiveTime = parseInt(times[1]);
+	      this.delay = parseInt(this.delay) || 0;
+	      this.timer = this.game.time.create(false);
+	      this.timer.add(this.delay, this.runDelay, this);
+	      this.timer.start();
 	    }
 	    return this;
-	  }
+	  };
+	
+	
+	  /*
+	   */
+	
+	  Tile.prototype.runDelay = function() {
+	    this.timer = this.game.time.create(false);
+	    if (this.deactivated) {
+	      this.timer.add(this.inactiveTime, this.reactivate, this);
+	    } else {
+	      this.timer.add(this.activeTime, this.deactivate, this);
+	    }
+	    this.timer.start();
+	  };
 	
 	
 	  /*
@@ -22247,7 +22324,7 @@
 	
 	  Tile.prototype.onPlayerTouch = function(player) {
 	    this.player = player;
-	    if (this.deactivated) {
+	    if (!this.active) {
 	      this.killPlayer();
 	    }
 	    return true;
@@ -22260,12 +22337,14 @@
 	
 	  Tile.prototype.deactivate = function() {
 	    Tile.__super__.deactivate.apply(this, arguments);
-	    if ((this.player != null) && this.player.position.x === this.position.x && this.player.position.y === this.position.y) {
+	    if ((this.player != null) && this.player.coord.x === this.coord.x && this.player.coord.y === this.coord.y) {
 	      this.killPlayer();
 	      return;
 	    }
-	    if (this.data.properties.times != null) {
-	      this.timerID = setTimeout(this.reactivate, this.inactiveTime);
+	    if (this.times != null) {
+	      this.timer = this.game.time.create(false);
+	      this.timer.add(this.inactiveTime, this.reactivate, this);
+	      this.timer.start();
 	    }
 	  };
 	
@@ -22276,8 +22355,10 @@
 	
 	  Tile.prototype.reactivate = function() {
 	    Tile.__super__.reactivate.apply(this, arguments);
-	    if (this.data.properties.times != null) {
-	      this.timerID = setTimeout(this.deactivate, this.activeTime);
+	    if (this.times != null) {
+	      this.timer = this.game.time.create(false);
+	      this.timer.add(this.inactiveTime, this.deactivate, this);
+	      this.timer.start();
 	    }
 	  };
 	
