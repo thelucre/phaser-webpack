@@ -38,6 +38,9 @@ class Map
 		@layers.player = @map.createBlankLayer 'player'
 		@layers.player.setScale options.scale
 
+		@layers.foreground = @map.createLayer 'foreground'
+		@layers.foreground.setScale options.scale
+
 		# get the Tiled map data for custom object loading
 		@mapData = Phaser.TilemapParser.parse @game, 'map_01'
 
