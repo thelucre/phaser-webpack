@@ -74,7 +74,7 @@
 	    this.preload = bind(this.preload, this);
 	    this.level = 1;
 	    this.filter = [];
-	    this.game = new Phaser.Game(160, 160, Phaser.AUTO, 'game', {
+	    this.game = new Phaser.Game(160, 160, Phaser.CANVAS, 'game', {
 	      preload: this.preload,
 	      create: this.create,
 	      update: this.update,
@@ -100,6 +100,8 @@
 	    window.cursors = this.game.input.keyboard.createCursorKeys();
 	    Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
 	    PIXI.scaleModes.DEFAULT = PIXI.scaleModes.NEAREST;
+	    this.game.stage.smoothed = false;
+	    Phaser.Canvas.setSmoothingEnabled(this.game.context, false);
 	    this.map = new Map(this.game);
 	  };
 	
