@@ -43,6 +43,7 @@ class Entity extends Phaser.Sprite
 			@frame = parseInt(@frameOverride)
 
 		@coord = Phaser.Point.divide @position, (new Phaser.Point(options.tilesize,options.tilesize))
+		@originalCoord = @coord # keep reference to its starting point
 
 		# Update the view position immediately because the anchor changed
 		@updateViewPosition()
@@ -57,9 +58,8 @@ class Entity extends Phaser.Sprite
 	When a player interacts with this tile. Override.
 	###
 	onPlayerTouch: () =>
+		# Player can move to this object's position when true
 		return true
-		return if @deactivated
-		return
 
 	###
 	Removes the sprite from the game

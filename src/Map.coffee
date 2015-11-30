@@ -13,6 +13,7 @@ class Map
 			switch: require './Switch.coffee'
 			warp: require './Warp.coffee'
 			tile: require './Tile.coffee'
+			block: require './Block.coffee'
 
 		# container for objects created from Tiled map data
 		@objects = []
@@ -42,6 +43,7 @@ class Map
 		@map.createFromObjects('objects', 'laser', 'sprites', 1, true, true, @objectGroup, @objectClasses.laser)
 		@map.createFromObjects('objects', 'finish', 'sprites', 2, true, true, @objectGroup, @objectClasses.finish)
 		@map.createFromObjects('objects', 'warp', 'sprites', 6, true, true, @objectGroup, @objectClasses.warp)
+		@map.createFromObjects('objects', 'block', 'sprites', 10, true, true, @objectGroup, @objectClasses.block)
 		@map.createFromObjects('objects', 'switch', 'sprites', 3, true, true, @objectGroup, @objectClasses.switch)
 		@map.createFromObjects('objects', 'tile', 'sprites', 3, true, true, @objectGroup, @objectClasses.tile)
 
@@ -148,7 +150,7 @@ class Map
 
 			if object.coord.x == movePos.x && object.coord.y == movePos.y
 				# the interaction object decides if the player should continue its move or not
-				clean = object.onPlayerTouch @player
+				clean = object.onPlayerTouch @player, @
 			return
 
 		return clean && @map.layers[0].data[movePos.y][movePos.x].index != 6
