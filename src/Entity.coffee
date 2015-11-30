@@ -43,7 +43,7 @@ class Entity extends Phaser.Sprite
 			@frame = parseInt(@frameOverride)
 
 		@coord = Phaser.Point.divide @position, (new Phaser.Point(options.tilesize,options.tilesize))
-		@originalCoord = @coord # keep reference to its starting point
+		@originalCoord = @coord.clone() # keep reference to its starting point
 
 		# Update the view position immediately because the anchor changed
 		@updateViewPosition()

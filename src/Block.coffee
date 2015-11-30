@@ -15,4 +15,12 @@ class Block extends Entity
 	checkValid: (map, x, y) =>
 		return map.map.layers[0].data[y][x].index != 6
 
+	###
+	Adds the sprite to the game
+	###
+	deactivate: () =>
+		@move @originalCoord.x, @originalCoord.y
+		
+		return
+
 module.exports = Block

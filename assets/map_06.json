@@ -55,7 +55,7 @@
                  "name":"switch",
                  "properties":
                     {
-                     "targets":"laser1",
+                     "targets":"block1",
                      "toggle":""
                     },
                  "rotation":0,
@@ -72,7 +72,7 @@
                  "name":"block",
                  "properties":
                     {
-
+                     "id":"block1"
                     },
                  "rotation":0,
                  "type":"",
@@ -99,7 +99,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":12,
+ "nextobjectid":13,
  "orientation":"orthogonal",
  "properties":
     {

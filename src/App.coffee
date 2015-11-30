@@ -16,7 +16,7 @@ window.SETTINGS = require './Settings.coffee'
 class App
 
 	constructor: () ->
-		@level = 1;
+		@level = 6;
 
 		@filter = []
 
