@@ -11,6 +11,8 @@ window.options =
 	# Map titlesize, used to convert game logic position to screen position
 	tilesize: 8
 
+window.SETTINGS = require './Settings.coffee'
+
 class App
 
 	constructor: () ->
@@ -79,7 +81,37 @@ class App
 		# restart the game state
 		@game.state.start('game')
 
-	death: (object) =>
+	death: (object, type) =>
+		# Keep the player from moving on the death animation
+		@map.stopInput()
+		@map.stopObjects()
+
+		if type == SETTINGS.DEATH.LASER
+			tween = @game.add.tween(@map.player)
+				.to( { alpha : 0, angle: 360 }, 2000, "Sine.easeOut")
+				.start()
+			@game.add.tween(@map.player.scale)
+				.to( { x : 0, y: 0 }, 2000, "Sine.easeOut")
+				.start()
+
+			tween.onComplete.add @restart
+
+		else if type == SETTINGS.DEATH.FALL
+			tween = @game.add.tween(@map.player)
+				.to( { alpha : 0, angle: 180 }, 2000, "Sine.easeOut")
+				.onCompleteCallback @restart
+				.start()
+			@game.add.tween(@map.player.scale)
+				.to( { x : 0, y: 0 }, 2000, "Sine.easeOut")
+				.start()
+
+			tween.onComplete.add @restart
+
+		else
+			@restart()
+		return
+
+	restart: () =>
 		@game.state.start('game', true, false)
 		return
 

@@ -10,7 +10,7 @@ class Laser extends Entity
 		console.log 'you died by laser'
 
 		# restart the game state
-		app.death @
+		app.death @, SETTINGS.DEATH.LASER
 		return true
 
 module.exports = Laser

@@ -17,6 +17,8 @@ class Map
 		# container for objects created from Tiled map data
 		@objects = []
 
+		@canMove = true
+
 		# create a tilemap from our demo json map
 		@map = @game.add.tilemap('map_01')
 
@@ -27,8 +29,6 @@ class Map
 
 		# and load hte tileset into the map object
 		@map.addTilesetImage 'tiles'
-
-		console.log @map
 
 		# render the static environment tiles
 		@layers.environment = @map.createLayer 'environment'
@@ -66,6 +66,28 @@ class Map
 		return @
 
 	###
+
+	###
+	stopInput: () =>
+		@canMove = false
+		return
+
+	###
+
+	###
+	startInput: () =>
+		@canMove = true
+		return
+
+	###
+
+	###
+	stopObjects: () =>
+		_.each @objectGroup.children, (obj) =>
+			obj.stop()
+		return
+
+	###
 	Looks for any game objects that match an array of ID strings.
 	The ID is a custom property set on Tiled Objects
 	###
@@ -89,18 +111,22 @@ class Map
 		@player = obj.init()
 
 		cursors.up.onDown.add () =>
+			return if !@canMove
 			if @isValidMove 0, -1
 				obj.moveRelative 0,-1
 
 		cursors.down.onDown.add () =>
+			return if !@canMove
 			if @isValidMove 0,1
 				obj.moveRelative 0,1
 
 		cursors.left.onDown.add () =>
+			return if !@canMove
 			if @isValidMove -1,0
 				obj.moveRelative -1,0
 
 		cursors.right.onDown.add () =>
+			return if !@canMove
 			if @isValidMove 1,0
 				obj.moveRelative 1,0
 		return

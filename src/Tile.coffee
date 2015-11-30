@@ -89,6 +89,10 @@ class Tile extends Entity
 			@timer.start()
 		return
 
+	stop: () =>
+		@stopTimer()
+		return
+
 	###
 	Player dies
 	###
@@ -96,22 +100,15 @@ class Tile extends Entity
 		console.log 'you fell into blissful eternity'
 		@stopTimer()
 		# restart the game state
-		app.death @
-		return
-
-	###
-	Builds a timer for deactivating the tile
-	###
-	startTimer: () =>
-		@timerID = setTimeout @deactivate, (parseInt @activeTime) + (parseInt @delay)
+		app.death @, SETTINGS.DEATH.LASER
 		return
 
 	###
 	Kills the timer, if any is set
 	###
 	stopTimer: () =>
-		if @timerID?
-			clearTimeout @timerID
+		if @timer?
+			@timer.stop()
 		return
 
 module.exports = Tile

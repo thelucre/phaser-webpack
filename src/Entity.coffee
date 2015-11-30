@@ -35,10 +35,17 @@ class Entity extends Phaser.Sprite
 		# If the tile can interact with the player or not?
 		@active = true;
 
+		# transformations occur form the center of the sprite
+		@anchor = new Phaser.Point 0.5, 0.5
+
+		# allows tiled objects to override the sprite index on the tilesheet
 		if @frameOverride?
 			@frame = parseInt(@frameOverride)
 
 		@coord = Phaser.Point.divide @position, (new Phaser.Point(options.tilesize,options.tilesize))
+
+		# Update the view position immediately because the anchor changed
+		@updateViewPosition()
 
 		if @deactivated? then @deactivate()
 		else
@@ -59,7 +66,6 @@ class Entity extends Phaser.Sprite
 	###
 	deactivate: () =>
 		return if !@active
-		console.log 'deactivating'
 		@active = false
 		@visible = false
 		return
@@ -69,7 +75,6 @@ class Entity extends Phaser.Sprite
 	###
 	reactivate: () =>
 		return if @active
-		console.log 'reactivating'
 		@active = true
 		@visible = true
 		return
@@ -96,7 +101,16 @@ class Entity extends Phaser.Sprite
 	Using the tile coordinate, render the object at the appropriate screen position
 	###
 	updateViewPosition: () =>
-		@position = Phaser.Point.multiply @coord, (new Phaser.Point(options.tilesize,options.tilesize))
+		pos = Phaser.Point.multiply @coord, (new Phaser.Point(options.tilesize,options.tilesize))
+		pos.x += 4
+		pos.y += 4
+		@position = pos
+		return
+
+	###
+	Hook to kill any game processes when the player dies (Override me)
+	###
+	stop: () =>
 		return
 
 module.exports = Entity
